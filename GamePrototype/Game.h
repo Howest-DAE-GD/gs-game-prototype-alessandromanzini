@@ -4,6 +4,7 @@
 #include "CultMember.h"
 #include "Projectile.h"
 #include <vector>
+#include <list>
 class Game : public BaseGame
 {
 public:
@@ -26,6 +27,8 @@ public:
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
 private:
+	Texture m_ControlsScreen;
+
 	Texture m_ScoreText;
 	Texture m_YouWinText;
 	Texture m_YouLoseText;
@@ -36,6 +39,9 @@ private:
 
 	std::vector<Projectile> m_Projectiles;
 
+	std::vector<Rectf> m_Powerups;
+
+	bool m_Pause{};
 	int m_Score;
 
 	float m_EnemySpawnDelay{ 3.f };

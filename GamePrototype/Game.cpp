@@ -4,6 +4,7 @@
 
 Game::Game( const Window& window ) 
 	:BaseGame{ window }
+	, m_ControlsScreen{ "controls_screen.png" }
 	, m_ScoreText{ "0", "F_cuphead_vogue_xbold.otf", 30, Color4f{ 1.f, 1.f, 1.f, 1.f } }
 	, m_YouWinText{ "You Win!", "F_cuphead_vogue_xbold.otf", 30, Color4f{ 1.f, 1.f, 1.f, 1.f } }
 	, m_YouLoseText{ "You Lose!", "F_cuphead_vogue_xbold.otf", 30, Color4f{ 1.f, 1.f, 1.f, 1.f } }
@@ -21,6 +22,7 @@ void Game::Initialize( )
 {
 	m_pPlayer = new Player( Vector2f{ GetViewPort().width/2, GetViewPort().height/2} );
 	m_CultMembers = std::vector<CultMember>{};
+	m_Powerups = std::vector<Rectf>{};
 	m_Progress = 0.f;
 	m_Score = 0;
 	m_ScoreText = Texture{ std::to_string( m_Score ), "F_cuphead_vogue_xbold.otf", 30, Color4f{ 1.f, 1.f, 1.f, 1.f } };
@@ -33,9 +35,14 @@ void Game::Cleanup( )
 
 void Game::Update( float elapsedSec )
 {
-	if ( m_Progress >= 1.f )
+	if ( m_Progress >= 1.f || m_Pause )
 	{
 		return;
+	}
+
+	if( rand( ) % 1000 == 0 )
+	{
+		m_Powerups.push_back( Rectf{ float( rand( ) % int( GetViewPort( ).width ) ), float( rand( ) % int( GetViewPort( ).height ) ), 20.f, 20.f } );
 	}
 
 	m_EnemySpawnAccumulatedTime += elapsedSec;
@@ -74,6 +81,15 @@ void Game::Update( float elapsedSec )
 		m_pPlayer->CheckCollision( member.GetBounds() );
 	}
 
+	for( Rectf& powerup : m_Powerups )
+	{
+		if ( utils::IsOverlapping( m_pPlayer->GetBounds( ), powerup ) )
+		{
+			powerup.left = -1000.f;
+			m_pPlayer->IncreaseSwordSize( );
+		}
+	}
+
 	if ( m_pPlayer->GetIsAlive( ) )
 	{
 		SpawnProjectile( );
@@ -85,6 +101,13 @@ void Game::Draw( ) const
 {
 	ClearBackground( );
 
+	utils::SetColor( Color4f{ 0.f, 0.f, 1.f, 1.f } );
+	for ( const Rectf& powerup : m_Powerups )
+	{
+		utils::FillRect( powerup );
+	}
+
+	utils::SetColor( Color4f{ 1.f, 1.f, 1.f, 1.f } );
 	m_pPlayer->Draw( );
 
 	for ( const CultMember& member : m_CultMembers )
@@ -123,6 +146,11 @@ void Game::Draw( ) const
 		m_YouLoseText.Draw( Point2f{ GetViewPort( ).width / 2 - m_YouLoseText.GetWidth( ) / 2, GetViewPort( ).height / 2 - m_YouLoseText.GetHeight( ) / 2 } );
 		m_RestartText.Draw( Point2f{ GetViewPort( ).width / 2 - m_RestartText.GetWidth( ) / 2, GetViewPort( ).height / 2 - m_RestartText.GetHeight( ) / 2 - 30.f } );
 	}
+
+	if( m_Pause )
+	{
+		m_ControlsScreen.Draw( GetViewPort() );
+	}
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
@@ -134,6 +162,9 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 	case SDLK_r:
 		Initialize( );
 		break;
+	case SDLK_ESCAPE:
+		m_Pause = !m_Pause;
+		break;	
 	}
 }
 

@@ -7,6 +7,7 @@ Player::Player( const Vector2f& location )
 	: mk_Width{ 20.f }
 	, mk_Height{ 20.f }
 	, mk_SwordWidth{ 10.f }
+	, mk_DefaultSwordHeight{ 70.f }
 	, mk_SwordHeight{ 70.f }
 	, mk_PistolWidth{ 5.f }
 	, mk_PistolHeight{ 20.f }
@@ -24,7 +25,7 @@ Player::Player( const Vector2f& location )
 	, m_KeysState{}
 	, m_PistolShots{ 3 }
 	, m_ProgressToShot{ 0.f }
-	, m_ProgressPerShot{ .5f }
+	, m_ProgressPerShot{ .2f }
 	, m_IsDashing{}
 	, m_DashElapsedTime{}
 {
@@ -39,6 +40,11 @@ Player::~Player( )
 Vector2f Player::GetLocation( ) const
 {
 	return m_Location;
+}
+
+Rectf Player::GetBounds( ) const
+{
+	return Rectf{ m_Location.x, m_Location.y, mk_Width, mk_Height };
 }
 
 Point2f Player::GetPistolEnd( ) const
@@ -209,6 +215,11 @@ void Player::CheckCollision( const Rectf& bounds )
 	{
 		m_IsAlive = false;
 	}
+}
+
+void Player::IncreaseSwordSize( )
+{
+	mk_SwordHeight += m_SwordIncrease;
 }
 
 void Player::ProcessKeyPressEvent( const SDL_KeyboardEvent& e )

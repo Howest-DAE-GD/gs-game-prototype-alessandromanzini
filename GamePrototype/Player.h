@@ -10,6 +10,7 @@ public:
 	~Player( );
 
 	Vector2f GetLocation( ) const;
+	Rectf GetBounds( ) const;
 	Point2f GetPistolEnd( ) const;
 	Point2f GetSwordStart() const;
 	Point2f GetSwordEnd() const;
@@ -26,6 +27,8 @@ public:
 
 	void CheckCollision( const Rectf& bounds );
 
+	void IncreaseSwordSize( );
+
 	void ProcessKeyPressEvent( const SDL_KeyboardEvent& e );
 	void ProcessMouseMotionEvent( const SDL_MouseMotionEvent& e );
 	void ProcessMousePressEvent( const SDL_MouseButtonEvent& e );
@@ -35,9 +38,12 @@ private:
 	float mk_Width;
 	float mk_Height;
 	float mk_SwordWidth;
+	float mk_DefaultSwordHeight;
 	float mk_SwordHeight;
 	float mk_PistolWidth;
 	float mk_PistolHeight;
+
+	static const int m_SwordIncrease{ 1 };
 
 	bool m_IsAlive;
 
